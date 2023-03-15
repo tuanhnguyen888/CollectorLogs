@@ -1,38 +1,34 @@
-// writer_test.go
-
-package kafka
+package kafka_test
 
 import (
-	"collector/mocks"
 	"context"
-	kafkago "github.com/segmentio/kafka-go"
 	"testing"
 
+	"collector/kafka"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-func TestWriter_WriteMessages(t *testing.T) {
-	// Tạo mock
-	mockWriter := mocks.NewIKafkaWriter(t)
+func TestNewKafkaWriter(t *testing.T) {
+	topic := "test"
 
-	// Thiết lập expectation cho mock
-	logEvent := []byte("log message")
-	partitionNumber := 0
+	kafkaWriter := kafka.NewKafkaWriter(topic)
+
+	assert.IsType(t, &kafka.Writer{}, kafkaWriter)
+	assert.Len(t, kafkaWriter.(*kafka.Writer).Writer, 1)
+	assert.Equal(t, topic, kafkaWriter.(*kafka.Writer).Writer[0].Topic)
+}
+
+func TestWriteMessages(t *testing.T) {
+	// create a new kafka writer instance
+	kafkaWriter := kafka.NewKafkaWriter("test")
+
+	// set up some test data
+	testData := []byte("test data")
+
+	// create a new context
 	ctx := context.Background()
-	mockWriter.On("WriteMessages", mock.Anything, logEvent, partitionNumber).Return(nil)
 
-	// Tạo writer
-	writer := &Writer{
-		Writer: []*kafkago.Writer{mockWriter},
-	}
-
-	// Gọi hàm WriteMessages
-	err := writer.WriteMessages(ctx, logEvent, partitionNumber)
-
-	// Kiểm tra kết quả
-	assert.NoError(t, err)
-
-	// Kiểm tra expectation đã được gọi
-	mockWriter.AssertExpectations(t)
+	// call WriteMessages method to write test data to kafka
+	err := kafkaWriter.WriteMessages(ctx, testData, 0)
+	assert.NoError(t, err, "unexpected error")
 }

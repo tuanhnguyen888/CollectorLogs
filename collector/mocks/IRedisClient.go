@@ -19,6 +19,7 @@ func (_m *IRedisClient) Get(key string) cache.RedisStringCmd {
 	ret := _m.Called(key)
 
 	var r0 cache.RedisStringCmd
+
 	if rf, ok := ret.Get(0).(func(string) cache.RedisStringCmd); ok {
 		r0 = rf(key)
 	} else {
