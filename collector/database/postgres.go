@@ -133,7 +133,12 @@ func (s *postgresqlStory) Execute(stt int) ([]byte, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer rows.Close()
+	defer func(rows IRow) {
+		err := rows.Close()
+		if err != nil {
+
+		}
+	}(rows)
 
 	// Lấy thông tin của các trường, kiểu và giá trị từ bản ghi
 	columns, err := rows.Columns()
